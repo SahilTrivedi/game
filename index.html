@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pokemon Game</title>
+    <style>
+        body{
+            background-color: black;
+        }
+        #mycanvas{
+            border : 2px solid blue;
+            background-image: url("bggame.jpg");
+            margin-left: 300px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="mycanvas" width="700px" height="600px">
+    </canvas>
+
+<script>
+    GAME_WIDTH = 700;
+    GAME_HEIGHT = 600;
+
+    var canvas = document.getElementById('mycanvas');
+    var ctx = canvas.getContext('2d');
+    var sprites = {};
+
+    sprites.player = new Image();
+    sprites.player.src = 'assets/pika.png';
+
+    sprites.goal = new Image();
+    sprites.goal.src = "assets/ball.png";
+
+    sprites.enemy = [];
+    sprites.enemy[0] = new Image();
+    sprites.enemy[0].src = "assets/bulbasaur.png";
+    sprites.enemy[1] = new Image();
+    sprites.enemy[1].src = "assets/gengar.png";
+    sprites.enemy[2] = new Image();
+    sprites.enemy[2].src = "assets/drowsy.png";
+    sprites.enemy[3] = new Image();
+    sprites.enemy[3].src = "assets/charizad.png";
+
+    var gameOver=false;
+
+    var enemy = [
+        {
+            x:100,
+            y:100,
+            w:50,
+            h:50,
+            speedy:2,
+        },
+        {
+            x:200,
+            y:200,
+            w:50,
+            h:50,
+            speedy:3,
+        },
+        {
+            x:300,
+            y:300,
+            w:50,
+            h:50,
+            speedy:4,
+        },
+        {
+            x:400,
+            y:400,
+            w:50,
+            h:50,
+            speedy:6,
+        },
+    ];
+
+    var player = {
+        x:10,
+        y:GAME_HEIGHT/2,
+        w:50,
+        h:50,
+        speedx:2,
+        isMoving:false
+    };
+     var goal = {
+         x:GAME_WIDTH-50,
+         //y:0,
+         y:GAME_HEIGHT/2,
+         w:50,
+         h:50
+     }
+
+    canvas.addEventListener("mousedown",function () {
+        //player.x += player.speedx;
+        player.isMoving = true;
+    });
+
+    canvas.addEventListener("mouseup",function () {
+        //player.x += player.speedx;
+        player.isMoving = false;
+    });
+
+    canvas.addEventListener("touchstart",function () {
+        //player.x += player.speedx;
+        player.isMoving = true;
+    });
+
+    canvas.addEventListener("touchend",function () {
+        //player.x += player.speedx;
+        player.isMoving = false;
+    });
+
+    var isColliding =  function (r1,r2) {
+        var firstCon = Math.abs(r1.x-r2.x) <=Math.max(r1.w,r2.w);
+        var secondCon = Math.abs(r1.y-r2.y) <=Math.max(r1.h,r2.h);
+        if(firstCon&&secondCon)
+                return true;
+        else
+                return false;
+    }
+
+
+    x = 200;
+    y = 200;
+    w = 50;
+    h = 50;
+    speedx = 4;
+
+    var update = function () {
+        //CHECK FOR COLLISION
+        enemy.forEach(function (element,index) {
+            if(isColliding(player,element)){
+                alert("GAME OVER !");
+                gameOver = true;
+                window.location = "";
+            }
+        });
+
+        if(isColliding(player,goal)){
+            alert("YOU WON !");
+            gameOver = true;
+            window.location = "";
+        }
+
+        enemy.forEach(function (element,index) {
+            element.y +=element.speedy;
+            if(element.y >=GAME_HEIGHT-50||element.y<=0){
+                element.speedy *=-1;
+            }
+        });
+        if(player.isMoving == true){
+            player.x+=player.speedx;
+        }
+
+    }
+    var draw = function () {
+        //CLEAR CANVAS
+        ctx.clearRect(0,0,GAME_WIDTH,GAME_HEIGHT);
+        ctx.fillStyle = "rgb(0,200,0)";
+        //DRAW ENEMIES
+        enemy.forEach(function (element,index) {
+            ctx.drawImage(sprites.enemy[index],element.x,element.y,element.w,element.h);
+            //ctx.fillRect(element.x,element.y,element.w,element.h);
+
+        });
+        //DRAW PLAYER
+        ctx.fillStyle="rgb(200,0,0)";
+        ctx.drawImage(sprites.player,player.x,player.y,player.w,player.h);//to draw player with image.
+        //ctx.fillRect(player.x,player.y,player.w,player.h)
+        //DRAW GOAL
+        ctx.fillStyle = "rgb(200,100,100)";
+        ctx.drawImage(sprites.goal,goal.x,goal.y,goal.w,goal.h);
+        //ctx.fillRect(goal.x,goal.y,goal.w,goal.h);
+    }
+
+    var render = function () {
+        if(gameOver == true)
+                return;
+        draw();
+        update();
+        window.requestAnimationFrame(render);
+    }
+
+    render();
+
+</script>
+</body>
+</html>
